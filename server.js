@@ -47,6 +47,7 @@ import BeautifulEyeWearAdminRouter from "./src/routes/admin/beautifulEyewearColl
 import AdminNewsletterRoutes from "./src/routes/admin/NewsletterRoutes.js";
 import ApiEndpointRoutes from "./src/routes/admin/ApiEndpointRoutes.js";
 import EducationInfoRoutes from "./src/routes/user/EducationInfoRoutes.js";
+import BlogRoutes from "./src/routes/user/BlogRoutes.js";
 // import orderRoutes from "./src/routes/user/orderRoutes.js";
 // import { createRequire } from "module";
 //in case we need to require anything
@@ -122,6 +123,8 @@ app.use("/api/user/best_seller", BestSellerUserRoutes);
 app.use("/api/user/offer", UserOfferDataRoutes);
 app.use("/api/user/country", CountryDataRoutes);
 app.use("/api/user/education", EducationInfoRoutes);
+app.use("/api/user/blog", BlogRoutes);
+
 // app.use("/")
 // app.use("/api/user/ui",);
 
