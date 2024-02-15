@@ -11,10 +11,10 @@ const BlogModel = dbConnection.define(
       type: DataTypes.STRING,
     },
     content: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
     },
     description: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
     },
     image: {
       type: DataTypes.STRING,
@@ -23,12 +23,14 @@ const BlogModel = dbConnection.define(
       type: DataTypes.STRING,
     },
     meta_tag: {
-      type: DataTypes.STRING,
+      type: DataTypes.JSON,
     },
     meta_description: {
       type: DataTypes.STRING,
     },
-
+    status: {
+      type: DataTypes.ENUM("active", "inactive"),
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
