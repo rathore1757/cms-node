@@ -85,6 +85,16 @@ class BlogController {
         .json({ message: err?.message, statusCode: 500, success: false });
     }
   }
+  async fetchCity(req, res) {
+    try {
+     
+      BlogServicesObj.fetchCityData(req, res);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err?.message, statusCode: 500, success: false });
+    }
+  }
 }
 
 const BlogControllerObj = new BlogController();

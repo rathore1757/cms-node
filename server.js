@@ -124,6 +124,7 @@ app.use("/api/user/offer", UserOfferDataRoutes);
 app.use("/api/user/country", CountryDataRoutes);
 app.use("/api/user/education", EducationInfoRoutes);
 app.use("/api/user/blog", BlogRoutes);
+app.use("/api/user/city", BlogRoutes);
 
 // app.use("/")
 // app.use("/api/user/ui",);

@@ -15,5 +15,8 @@ BlogRoutes.put("/change_status", BlogControllerObj.change_status);
 BlogRoutes.put("/edit_data", BlogControllerObj.editData);
 BlogRoutes.delete("/destroy", BlogControllerObj.destroyData);
 
+//city
+BlogRoutes.get("/feth_city", BlogControllerObj.fetchCity);
+
 
 export default BlogRoutes;
