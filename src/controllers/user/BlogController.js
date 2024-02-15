@@ -13,6 +13,26 @@ class BlogController {
   async add(req, res) {
     BlogServicesObj.addBlog(req, res);
   }
+
+  async fetch_all(req, res) {
+    try {
+      BlogServicesObj.fetchAllBlog(req, res);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err?.message, statusCode: 500, success: false });
+    }
+  }
+
+  async fetch_active(req, res) {
+    try {
+      BlogServicesObj.fetchBlog(req, res);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err?.message, statusCode: 500, success: false });
+    }
+  }
 }
 
 const BlogControllerObj = new BlogController();

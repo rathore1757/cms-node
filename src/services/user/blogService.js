@@ -1,9 +1,9 @@
 import CartModel from "../../models/CartModel.js";
 import { Op, literal } from "sequelize";
 import dbConnection from "../../config/dbConfig.js";
-import ProductModel from "../../models/ProductModel.js";
-import ProductVariantModel from "../../models/ProductVariantModel.js";
 import axios from "axios";
+import CityModel from "../../models/CityModel.js";
+import BlogModel from "../../models/blogModel.js";
 
 async function getChatGPTResponse(message) {
   try {
@@ -35,32 +35,66 @@ async function getChatGPTResponse(message) {
   }
 }
 
-async function fetcCity(countryCode, stateCode) {
-  try {
-    const response = await axios.get(
-      `http://api.geonames.org/searchJSON?country=${countryCode}&adminCode1=${stateCode}&maxRows=1000&username=prabhat926`
-    );
-    const { geonames } = response.data;
-
-    // Extract city names
-    const cities = geonames.map((city) => city.name);
-    console.log(cities, "cccccccccccccccccc");
-  } catch (err) {
-    console.log(err, "Errrrrrrrrrrrrrrr");
-    // return res.status(500).json({ message: err?.message });
-  }
-}
-fetcCity("india", "delhi");
 class BlogServices {
   async addBlog(req, res) {
     try {
-      // let findCity=await
+      let findCity = await CityModel.findAll({ raw: true });
+
+
+
+      return res
+        .status(200)
+        .json({
+          message: "fetch",
+          data: findCity,
+          statusCode: 200,
+          success: true,
+        });
     } catch (err) {
       return res
         .status(500)
         .json({ message: err?.message, statusCode: 500, success: false });
     }
   }
+
+  //admin 
+  async fetchAllBlog(req, res) {
+    try {
+      let find = await BlogModel.findAll({ raw: true });
+      return res
+        .status(200)
+        .json({
+          message: "fetch",
+          data: find,
+          statusCode: 200,
+          success: true,
+        });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err?.message, statusCode: 500, success: false });
+    }
+  }
+
+  //active
+  async fetchBlog(req, res) {
+    try {
+      let find = await BlogModel.findAll({ where:{status:"active"}, raw: true });
+      return res
+        .status(200)
+        .json({
+          message: "fetch",
+          data: find,
+          statusCode: 200,
+          success: true,
+        });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ message: err?.message, statusCode: 500, success: false });
+    }
+  }
+  
 }
 
 const BlogServicesObj = new BlogServices();
