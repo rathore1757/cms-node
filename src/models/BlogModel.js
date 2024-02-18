@@ -31,6 +31,10 @@ const BlogModel = dbConnection.define(
     status: {
       type: DataTypes.ENUM("active", "inactive"),
     },
+    is_data_generated: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
     created_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,

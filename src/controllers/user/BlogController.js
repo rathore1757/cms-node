@@ -13,7 +13,15 @@ class BlogController {
   async add(req, res) {
     BlogServicesObj.addBlog(req, res);
   }
-
+  async generateContent(req, res) {
+    BlogServicesObj.generateContent(req, res);
+  }
+  async saveContent(req, res) {
+    BlogServicesObj.saveContent(req, res);
+  }
+  async generateAndSaveData(req, res) {
+    BlogServicesObj.generateAndSaveDataForCities(req, res);
+  }
   async fetch_all(req, res) {
     try {
       BlogServicesObj.fetchAllBlog(req, res);
@@ -45,13 +53,11 @@ class BlogController {
   async change_status(req, res) {
     try {
       if (req.body.status != "active" && req.body.status != "inactive") {
-        return res
-          .status(400)
-          .json({
-            message: "Status must be active or inactive",
-            statusCode: 400,
-            success: false,
-          });
+        return res.status(400).json({
+          message: "Status must be active or inactive",
+          statusCode: 400,
+          success: false,
+        });
       }
       BlogServicesObj.changeStatus(req, res);
     } catch (err) {
@@ -87,7 +93,6 @@ class BlogController {
   }
   async fetchCity(req, res) {
     try {
-     
       BlogServicesObj.fetchCityData(req, res);
     } catch (err) {
       return res

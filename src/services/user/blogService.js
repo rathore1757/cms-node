@@ -5,6 +5,98 @@ import axios from "axios";
 import CityModel from "../../models/CityModel.js";
 import BlogModel from "../../models/blogModel.js";
 import { ChatGPTAPI } from "chatgpt";
+import cron from "node-cron";
+let task;
+const startCronJob = () => {
+  task = cron.schedule("* * * * *", async (req) => {
+    await generateDataAndSaveCityForCronJob();
+  });
+};
+const stopCronJob = () => {
+  if (task) {
+    task.stop();
+  }
+};
+const generateDataAndSaveCityForCronJob = async () => {
+  try {
+    const cityData = await CityModel.findAll({ raw: true });
+    const blogData = await BlogModel.findOne({
+      where: { is_data_generated: 0 },
+    });
+    if (!blogData) {
+      console.log("no blog data");
+      return;
+    }
+    const processCityData = async (index) => {
+      if (index < cityData.length) {
+        let title = `${blogData?.dataValues?.title} in ${cityData[index]?.city}`;
+        let slug = title.split(" ").join("-");
+        console.log(title, slug);
+        const cityDataBySlug = await BlogModel.findOne({
+          where: { slug: slug },
+          raw: true,
+        });
+        if (!cityDataBySlug) {
+          const tempStr = `on keyword ${title} can you give me content , description, meta tags and meta description in json object in this format {
+          "content":"","description":"","metaTags":"","metaDescription":""
+        } `;
+
+          const datafromgpt = await getDataFromGpt(tempStr);
+
+          if (datafromgpt) {
+            await BlogModel.create({
+              title: title,
+              slug: slug,
+              content: datafromgpt?.content || blogData?.content,
+              description: datafromgpt?.description || blogData?.description,
+              meta_tag: datafromgpt?.metaTags || blogData?.meta_tag,
+              meta_description:
+                datafromgpt?.metaDescription || blogData?.meta_description,
+              status: "active",
+              is_data_generated: 1,
+            });
+            console.log("data saved");
+            setTimeout(() => {
+              processCityData(index + 1); // Process next city after delay
+            }, 60000);
+          }
+        } else {
+          console.log("data exist");
+          processCityData(index + 1); // Process next city after delay
+        }
+      } else {
+        blogData.is_data_generated = 1;
+        await blogData.save();
+      }
+    };
+    // Start processing city data from index 0
+    await processCityData(0);
+  } catch (err) {
+    console.log(err);
+  }
+};
+// const generateDataAndSaveCityForCronJob = async () => {
+//   try {
+//     const cityData = await CityModel.findAll({ raw: true });
+//     const blogData = await BlogModel.findOne({
+//       where: { is_data_generated: 0 },
+//     });
+//     let i = 0;
+//     while (i < cityData.length) {
+//       setTimeout(() => {
+//         let title = `${blogData?.dataValues?.title} in ${cityData[i]?.city}`;
+//         const tempStr = `on keyword ${title} can you give me content , description, meta tags and meta description in json object in this format {
+//               "content":"","description":"","metaTags":"","metaDescription":""
+//             } example reference ${blogData?.dataValues}`;
+//         const datafromgpt = getDataFromGpt(tempStr);
+//         console.log(datafromgpt);
+//         i++;
+//       }, 30000);
+//     }
+//   } catch (err) {
+//     console.log(err);
+//   }
+// };
 
 async function getChatGPTResponse(message) {
   try {
@@ -42,7 +134,7 @@ async function getDataFromGpt(message) {
     // const apiUrl = "https://api.openai.com/v1/chat/completions";
     const apiUrl = "https://api.openai.com/v1/completions";
     // const apiKey = "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"; // Replace with your actual API key
-    const apiKey = "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"; //3.5 actual API key
+    const apiKey = "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"; //3.5 actual API key
     // const apiKey = "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"; //4 Replace with your actual API key
 
     // Assuming these are your parameters
@@ -69,7 +161,7 @@ async function getDataFromGpt(message) {
     // console.log(get?.data?.choices[0]?.text, "Getttttttttttttttttt");
     return get?.data?.choices[0]?.text;
   } catch (er) {
-    console.log(er, "Eroororororor");
+    console.log(er?.message, "Eroororororor");
     // return res
     //   .status(500)
     //   .json({ message: er?.message, statusCode: 500, success: false });
@@ -129,23 +221,22 @@ class BlogServices {
 
       // let findCity = await CityModel.findAll({ raw: true });
       // for (let i = 0; i < findCity.length; i++) {
-      let tempStr = `on keyword ${title} can you give me content , description, meta tags and meta description in json object`;
+      let tempStr = `on keyword ${title} can you give me content , description, meta tags and meta description in json object in this format {
+        "content":"","description":"","metaTags":"","metaDescription":""
+      }`;
       // console.log(tempStr, "tempstrrrrrrrrr");
       let get = await getDataFromGpt(tempStr);
-      console.log(get,"getgegetet")
+      console.log(get, "getgegetet");
       let tempObject = JSON.parse(get);
-      console.log(tempObject,"temppppppppppppppppppppppppp")
-      let slug = `${title
-        .trim()
-        .split(" ")
-        .join("-")}`;
+      console.log(tempObject, "temppppppppppppppppppppppppp");
+      let slug = `${title.trim().split(" ").join("-")}`;
 
       let obj = {
         title: title,
         slug: slug,
         content: tempObject?.content,
         description: tempObject?.description,
-        meta_tag: [`${tempObject?.metaTags}`],
+        meta_tag: tempObject?.metaTags.split(","),
         meta_description: tempObject?.metaDescription,
       };
       console.log(obj, "Gettttttttttttttt");
@@ -175,7 +266,94 @@ class BlogServices {
         .json({ message: err?.message, statusCode: 500, success: false });
     }
   }
+  async generateContent(req, res) {
+    try {
+      let title = req.body.title;
+      if (!title || title == null || title == undefined) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Title is required" });
+      }
+      // let findCity = await CityModel.findAll({ raw: true });
+      // for (let i = 0; i < findCity.length; i++) {
+      let tempStr = `on keyword ${title} can you give me data in json format like this {
+        "content":"","description":"","metaTags":"","metaDescription":""
+      } with content (same as blog content which should be in details minimum 2 paragraphs) , description , meta tags and meta description`;
+      // console.log(tempStr, "tempstrrrrrrrrr");
+      let get = await getDataFromGpt(tempStr);
+      console.log(get, "getgegetet");
+      let tempObject = JSON.parse(get);
+      console.log(tempObject, "temppppppppppppppppppppppppp");
+      let slug = `${title.trim().split(" ").join("-")}`;
 
+      let obj = {
+        title: title,
+        slug: slug,
+        content: tempObject?.content,
+        description: tempObject?.description,
+        meta_tag: tempObject?.metaTags,
+        meta_description: tempObject?.metaDescription,
+      };
+      console.log(obj, "Gettttttttttttttt");
+
+      return res.status(201).json({
+        message: "generated data",
+        data: obj,
+        statusCode: 201,
+        success: true,
+      });
+    } catch (err) {
+      console.log(err, "errrr");
+      return res
+        .status(500)
+        .json({ message: err?.message, statusCode: 500, success: false });
+    }
+  }
+  async saveContent(req, res) {
+    try {
+      let { title, slug, content, description, meta_tag, meta_description } =
+        req.body;
+      let obj = {
+        title: title,
+        slug: slug,
+        content: content,
+        description: description,
+        meta_tag: meta_tag.split(","),
+        meta_description: meta_description,
+      };
+
+      let findData = await BlogModel.findOne({ where: { slug }, raw: true });
+      if (findData) {
+        return res.status(200).json({
+          message: "Data already exists",
+          statusCode: 200,
+          success: true,
+        });
+      } else {
+        await BlogModel.create(obj);
+        return res.status(201).json({
+          message: "Data added",
+          statusCode: 201,
+          success: true,
+        });
+      }
+    } catch (err) {
+      console.log(err, "errrr");
+      return res
+        .status(500)
+        .json({ message: err?.message, statusCode: 500, success: false });
+    }
+  }
+  async generateAndSaveDataForCities(req, res) {
+    try {
+      startCronJob();
+      return res
+        .status(200)
+        .json({ success: true, message: "Data generated and saved" });
+    } catch (error) {
+      return res.status(500).json({ success: false, message: error?.message });
+    }
+  }
   // async addBlog(req, res) {
   //   try {
   //     let title = req.body.title;
@@ -268,7 +446,10 @@ class BlogServices {
   //admin
   async fetchAllBlog(req, res) {
     try {
-      let find = await BlogModel.findAll({ raw: true });
+      let find = await BlogModel.findAll({
+        raw: true,
+        order: [["id", "DESC"]],
+      });
       return res.status(200).json({
         message: "fetch",
         data: find,
@@ -317,10 +498,7 @@ class BlogServices {
         meta_tag,
         meta_description,
       } = req.body;
-      slug = slug
-        ?.trim()
-        ?.toLowerCase()
-        ?.replace(/\s+/g, "-");
+      slug = slug?.trim()?.toLowerCase()?.replace(/\s+/g, "-");
       let findObj = await BlogModel.findOne({ where: { id }, raw: true });
       if (!findObj) {
         return res

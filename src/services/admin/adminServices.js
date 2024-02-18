@@ -347,9 +347,9 @@ class AdminUserServices {
           algorithm: "HS512",
         });
       }
-      console.log(proof, "prooofffffff");
+      // console.log(proof, "prooofffffff");
       let roleData = {};
-      if (proof &&proof?.id&& proof?.role != "super_admin") {
+      if (proof && proof?.id && proof?.role != "super_admin") {
         let roleId = proof?.role_id;
         let fetchData = await RolesModel.findOne({
           where: { id: roleId },
