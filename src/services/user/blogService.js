@@ -7,6 +7,7 @@ import BlogModel from "../../models/blogModel.js";
 import { ChatGPTAPI } from "chatgpt";
 import OpenAI from "openai";
 import cron from "node-cron";
+import Location from "../../models/LocationModel.js";
 import BlogKeyword from "../../models/blogKeywordsModel.js";
 import CityArea from "../../models/CityAreasModel.js";
 
@@ -634,11 +635,7 @@ class BlogServices {
   }
   async fetchAreasByCity(req, res) {
     try {
-      const { id } = req.params;
-      let get = await CityArea.findAll(
-        { where: { city_id: id } },
-        { raw: true }
-      );
+      let get = await Location.findAll({ raw: true });
       return res
         .status(200)
         .json({ message: "fetch", data: get, success: true });

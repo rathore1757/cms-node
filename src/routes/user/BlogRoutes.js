@@ -28,5 +28,5 @@ BlogRoutes.get(
   "/fetch_active_cities/:slug",
   BlogControllerObj.fetchActiveCities
 );
-BlogRoutes.get("/get_areas_by_city/:id", BlogControllerObj.fetchAreasByCity);
+BlogRoutes.get("/get_areas_by_city", BlogControllerObj.fetchAreasByCity);
 export default BlogRoutes;
