@@ -11,6 +11,7 @@ BlogRoutes.post("/add_content", BlogControllerObj.saveContent);
 
 BlogRoutes.get("/fetch_active", BlogControllerObj.fetch_active);
 BlogRoutes.get("/fetch_by_slug", BlogControllerObj.fetch_by_slug);
+BlogRoutes.post("/save_keywords", BlogControllerObj.saveKeywords);
 BlogRoutes.post(
   "/generate_data_for_cities",
   BlogControllerObj.generateAndSaveData
@@ -20,8 +21,12 @@ BlogRoutes.get("/fetch_all", BlogControllerObj.fetch_all);
 BlogRoutes.put("/change_status", BlogControllerObj.change_status);
 BlogRoutes.put("/edit_data", BlogControllerObj.editData);
 BlogRoutes.delete("/destroy", BlogControllerObj.destroyData);
-
+BlogRoutes.get("/get_blog/:slug", BlogControllerObj.getBlogsBySlug);
 //city
 BlogRoutes.get("/feth_city", BlogControllerObj.fetchCity);
-
+BlogRoutes.get(
+  "/fetch_active_cities/:slug",
+  BlogControllerObj.fetchActiveCities
+);
+BlogRoutes.get("/get_areas_by_city/:id", BlogControllerObj.fetchAreasByCity);
 export default BlogRoutes;

@@ -3,7 +3,7 @@ import {
   cartSchemaUpdate,
 } from "../../helpers/validateCartSchema.js";
 import BlogServicesObj from "../../services/user/blogService.js";
-
+import axios from "axios";
 const options = {
   abortEarly: false,
   allowUnknown: true,
@@ -99,6 +99,18 @@ class BlogController {
         .status(500)
         .json({ message: err?.message, statusCode: 500, success: false });
     }
+  }
+  async saveKeywords(req, res) {
+    BlogServicesObj.saveKeywords(req, res);
+  }
+  async getBlogsBySlug(req, res) {
+    BlogServicesObj.getBlogBySlug(req, res);
+  }
+  async fetchActiveCities(req, res) {
+    BlogServicesObj.fetchActiveCities(req, res);
+  }
+  async fetchAreasByCity(req, res) {
+  BlogServicesObj.fetchAreasByCity(req,res)
   }
 }
 
